@@ -144,16 +144,16 @@ namespace SportsStore.UnitTests
             });
 
             // Arrange - create the controller
-            //NavController target = new NavController(mock.Object);
+            NavController target = new NavController(mock.Object);
 
             // Act = get the set of categories 
-            //string[] results = ((IEnumerable<string>)target.Menu().Model).ToArray();
+            string[] results = ((IEnumerable<string>)target.Menu().Model).ToArray();
 
             // Assert
-            //Assert.AreEqual(results.Length, 3);
-            //Assert.AreEqual(results[0], "Apples");
-            //Assert.AreEqual(results[1], "Oranges");
-            //Assert.AreEqual(results[2], "Plums");
+            Assert.AreEqual(results.Length, 3);
+            Assert.AreEqual(results[0], "Apples");
+            Assert.AreEqual(results[1], "Oranges");
+            Assert.AreEqual(results[2], "Plums");
         }
 
         [TestMethod]
