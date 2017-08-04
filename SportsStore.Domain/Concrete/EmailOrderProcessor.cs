@@ -1,12 +1,9 @@
-﻿using System.Net;
-using System.Net.Mail;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SportsStore.Domain.Abstract;
+﻿using SportsStore.Domain.Abstract;
 using SportsStore.Domain.Entities;
+using System.Net;
+using System.Net.Http;
+using System.Net.Mail;
+using System.Text;
 
 namespace SportsStore.Domain.Concrete
 {
@@ -19,7 +16,7 @@ namespace SportsStore.Domain.Concrete
         public string Password = "MySmtpPassword";
         public string ServerName = "smtp.example.com";
         public int ServerPort = 587;
-        public bool WriteAsFile = false;
+        public bool WriteAsFile = true;
         public string FileLocation = @"c:\sports_store_emails";
     }
 
@@ -85,7 +82,7 @@ namespace SportsStore.Domain.Concrete
                     mailMessage.BodyEncoding = Encoding.ASCII;
                 }
 
-                smtpClient.Send(mailMessage);
+                HttpClient.Send(mailMessage);
             }
         }
     }
