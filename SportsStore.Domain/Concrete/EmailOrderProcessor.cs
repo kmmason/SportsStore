@@ -1,7 +1,6 @@
 ﻿using SportsStore.Domain.Abstract;
 using SportsStore.Domain.Entities;
 using System.Net;
-using System.Net.Http;
 using System.Net.Mail;
 using System.Text;
 
@@ -22,7 +21,7 @@ namespace SportsStore.Domain.Concrete
 
     public class EmailOrderProcessor : IOrderProcessor
     {
-        private EmailOrderProcessor emailSettings;
+        private EmailSettings emailSettings;
 
         public EmailOrderProcessor(EmailSettings settings)
         {
@@ -31,16 +30,19 @@ namespace SportsStore.Domain.Concrete
 
         public void ProcessOrder(Cart cart, ShippingDetails shippingInfo)
         {
-            using (var smptclient = new SmtpClient())
+            using (var smtpClient = new SmtpClient())
             {
-                SmtpClient.EnableSsl = emailSettings.UseSsl;
-                SmtpClient.Host = emailSettings.ServerName;
-                SmtpClient.Port = emailSettings.ServerPort;
-                SmtpClient.UseDefaultCredentials = false;
-                smtpClient.Credentials = new NetworkCredential(emailSettings.Username, emailSettings.Password);
+                smtpClient.EnableSsl = emailSettings.UseSsl;
+                smtpClient.Host = emailSettings.ServerName;
+                smtpClient.Port = emailSettings.ServerPort;
+                smtpClient.UseDefaultCredentials = false;
+                smtpClient.Credentials
+                    = new NetworkCredential(emailSettings.Username,
+                          emailSettings.Password);
                 if (emailSettings.WriteAsFile)
                 {
-                    smtpClient.DeliveryMethod = SmtpDeliveryMethod.SpecifiedPickupDirectory;
+                    smtpClient.DeliveryMethod
+                        = SmtpDeliveryMethod.SpecifiedPickupDirectory;
                     smtpClient.PickupDirectoryLocation = emailSettings.FileLocation;
                     smtpClient.EnableSsl = false;
                 }
@@ -49,10 +51,13 @@ namespace SportsStore.Domain.Concrete
                     .AppendLine("A new order has been submitted")
                     .AppendLine("---")
                     .AppendLine("Items:");
+
                 foreach (var line in cart.Lines)
                 {
                     var subtotal = line.Product.Price * line.Quantity;
-                    body.AppendFormat("{0} x {1} (subtotal: {2:c}", line.Quantity, line.Product.Name, subtotal);
+                    body.AppendFormat("{0} x {1} (subtotal: {2:c}", line.Quantity,
+                                      line.Product.Name,
+                                      subtotal);
                 }
 
                 body.AppendFormat("Total order value: {0:c}", cart.ComputeTotalValue())
@@ -67,22 +72,20 @@ namespace SportsStore.Domain.Concrete
                     .AppendLine(shippingInfo.Country)
                     .AppendLine(shippingInfo.Zip)
                     .AppendLine("---")
-                    .AppendFormat("Gift wrap: {0}", shippingInfo.GiftWrap ? "Yes" : "No");
+                    .AppendFormat("Gift wrap: {0}",
+                        shippingInfo.GiftWrap ? "Yes" : "No");
 
-                MailMessage mailMessage = new MailMessage(emailSettings.MailFromAddress,   
-                    // From    
-                    emailSettings.MailToAddress,     
-                    // To      
-                    "New order submitted!",
-                    // Subject 
-                    body.ToString());
-                // Body    
+                MailMessage mailMessage = new MailMessage(
+                                       emailSettings.MailFromAddress,   // From
+                                       emailSettings.MailToAddress,     // To
+                                       "New order submitted!",          // Subject
+                                       body.ToString());                // Body
+
                 if (emailSettings.WriteAsFile)
                 {
                     mailMessage.BodyEncoding = Encoding.ASCII;
                 }
-
-                HttpClient.Send(mailMessage);
+                smtpClient.Send(mailMessage);
             }
         }
     }
