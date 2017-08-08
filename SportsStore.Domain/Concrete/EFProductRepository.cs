@@ -1,6 +1,7 @@
 ﻿using SportsStore.Domain.Abstract;
 using SportsStore.Domain.Entities;
 using System.Collections.Generic;
+using System.Runtime.Remoting.Contexts;
 
 namespace SportsStore.Domain.Concrete
 {
@@ -9,5 +10,25 @@ namespace SportsStore.Domain.Concrete
         private EFDbContext context = new EFDbContext();
 
         public IEnumerable<Product> Products { get { return context.Products; } }
+    }
+
+    public void SaveProduct(Product product)
+    {
+        if (product.ProductID == 0)
+        {
+            Context.Products.Add(product);
+        }
+        else
+        {
+            Product dbEntry = context.Products.Find(product.ProductID); if (dbEntry != null)
+                {
+                    dbEntry.Name = product.Name;
+                    dbEntry.Description = product.Description;
+                    dbEntry.Price = product.Price;
+                    dbEntry.Category = product.Category;
+                }
+        }
+
+        context.SaveChanges();
     }
 }
